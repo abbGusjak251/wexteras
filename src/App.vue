@@ -1,16 +1,17 @@
 <template>
   <div id="app">
-    <threed/>
+    <h1>Wexterås</h1>
+    <Canvas/>
   </div>
 </template>
 
 <script>
-import threed from './components/threed.vue'
+import Canvas from './components/Canvas.vue'
 
 export default {
   name: 'App',
   components: {
-    threed
+    Canvas
   }
 }
 </script>
