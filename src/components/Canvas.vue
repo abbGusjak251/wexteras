@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div id="canvas">
         <button @click="resetCamera">Reset Camera</button>
         <div id="container"></div>
     </div>
@@ -37,8 +37,11 @@ export default {
         this.controls.update();
 
         this.scene = new Three.Scene();
+        this.box = undefined;
         loader.load('manick.gltf', (gltf) => {
             this.scene.add(gltf.scene);
+            this.box = gltf.scene.children[0];
+            console.log(this.box);
         }, undefined, (error) => {
             console.error(error);
         });
@@ -55,7 +58,35 @@ export default {
         this.ambientLight = new Three.AmbientLight( 0xcccccc );
         this.scene.add(this.ambientLight);
         container.appendChild(this.renderer.domElement);
+        
 
+    },
+    onMouseEvent: function(event) {
+      //console.log(event);
+      var raycaster = new Three.Raycaster(); // create once
+      var mouse = new Three.Vector2(); // create once
+
+      mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1; 
+      mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1; 
+
+      raycaster.setFromCamera(mouse, this.camera);
+
+      var intersects = raycaster.intersectObjects(this.scene.children);
+
+      // 将所有的相交的模型的颜色设置为红色，如果只需要将第一个触发事件，那就数组的第一个模型改变颜色即可
+      if (intersects.length > 0) {
+        if(event instanceof MouseEvent) {
+            intersects.forEach((e) => {
+              console.log(e.object.name);
+            });
+            intersects[0].object.material.color = 0xcccccc;
+            //console.log(intersects[0]);
+        }
+        if (event instanceof PointerEvent) {
+            this.$parent.scrollToElement("pump");
+        }
+        //console.log(intersects[0].object.name);
+      }
     },
     animate: function() {
         requestAnimationFrame(this.animate);
@@ -71,6 +102,8 @@ export default {
   mounted() {
       this.init();
       this.animate();
+      window.addEventListener('click', this.onMouseEvent, false);
+      window.addEventListener('mousemove', this.onMouseEvent, false);
   }
 }
 </script>
@@ -80,6 +113,9 @@ export default {
     width: 75vw;
     height: 75vh;
     margin: auto;
+}
+#canvas {
+  margin-bottom: 400px;
 }
 button {
     outline: none;
